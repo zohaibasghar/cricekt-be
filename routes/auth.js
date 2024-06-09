@@ -94,7 +94,7 @@ router.post(
           };
           console.log(data);
           const authToken = jwt.sign(data, JWT_secret);
-          res.json({ passCompare, authToken });
+          res.json({ passCompare, authToken, user });
         }
       }
     } catch (error) {
