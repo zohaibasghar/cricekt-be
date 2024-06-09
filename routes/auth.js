@@ -35,6 +35,7 @@ router.post(
           name: data.name,
           email: data.email,
           password: hash,
+          mobile: data.mobile,
         }).save();
 
         //JWT used to generate a token
@@ -46,8 +47,8 @@ router.post(
         const authToken = jwt.sign(jwtID, JWT_secret);
 
         res.status(201).send({
-          code: 200,
           authToken: authToken,
+          user: newUser,
         });
       }
     } catch (error) {
