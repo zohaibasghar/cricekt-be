@@ -82,11 +82,11 @@ router.post(
       const { email, password } = req.body;
       const user = await User.findOne({ email });
       if (!user) {
-        res.json({ error: "email is not correct" });
+        res.status(404).json({ error: "email is not correct" });
       } else {
         var passCompare = await bcrypt.compare(password, user.password);
         if (!passCompare) {
-          res.json({ error: "password is not correct" });
+          res.status(422).json({ error: "password is not correct" });
         } else {
           const data = {
             user: {
@@ -95,7 +95,7 @@ router.post(
           };
           console.log(data);
           const authToken = jwt.sign(data, JWT_secret);
-          res.json({ passCompare, authToken, user });
+          res.status(200).json({ passCompare, authToken, user });
         }
       }
     } catch (error) {
