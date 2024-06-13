@@ -110,11 +110,63 @@ router.get("/fetchuser", fetchUser, async (req, res) => {
   try {
     let userId = await req.user.id;
     const user = await User.findById(userId).select("-password");
-    res.send(user);
+    res.status(200).send(user);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "some error occured" });
   }
 });
+
+//End point: change password
+router.patch(
+  "/change-password",
+  fetchUser,
+  [
+    body("currentPassword", "Current password is required").not().isEmpty(),
+    body("newPassword", "New password length must be at least 8").isLength({
+      min: 8,
+    }),
+  ],
+  async (req, res) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+
+      // Express validator errors logging
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      // Find the user by id
+      const user = await User.findOne({ id: req.user.id });
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Verify the current password
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ error: "Current password is incorrect" });
+      }
+
+      // Hash the new password
+      const salt = await bcrypt.genSalt(10);
+      const hash = await bcrypt.hash(newPassword, salt);
+
+      // Update the password
+      user.password = hash;
+      await user.save();
+
+      res.status(200).send({
+        message: "Password changed successfully",
+      });
+    } catch (error) {
+      res.status(500).send({
+        error: true,
+        message: error.message,
+      });
+    }
+  }
+);
 
 module.exports = router;
