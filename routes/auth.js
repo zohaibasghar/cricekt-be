@@ -129,7 +129,7 @@ router.patch(
   ],
   async (req, res) => {
     try {
-      const { currentPassword, newPassword } = req.body;
+      const { currentPassword, newPassword, email } = req.body;
 
       // Express validator errors logging
       const errors = validationResult(req);
@@ -137,8 +137,14 @@ router.patch(
         return res.status(400).json({ errors: errors.array() });
       }
 
-      // Find the user by id
-      const user = await User.findOne({ id: req.user.id });
+      // Find the user by id or email
+      const user = await User.findOne({
+        $or: [
+          { email }, // Replace with the correct field name where the email is coming from
+          { _id: req.user.id },
+        ],
+      });
+
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
