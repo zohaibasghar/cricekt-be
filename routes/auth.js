@@ -82,11 +82,11 @@ router.post(
       const { email, password } = req.body;
       const user = await User.findOne({ email });
       if (!user) {
-        res.status(404).json({ error: "email is not correct" });
+        return res.status(404).json({ error: "email is not correct" });
       } else {
         var passCompare = await bcrypt.compare(password, user.password);
         if (!passCompare) {
-          res.status(422).json({ error: "password is not correct" });
+          return res.status(422).json({ error: "password is not correct" });
         } else {
           const data = {
             user: {
@@ -95,12 +95,12 @@ router.post(
           };
           console.log(data);
           const authToken = jwt.sign(data, JWT_secret);
-          res.status(200).json({ passCompare, authToken, user });
+          return res.status(200).json({ passCompare, authToken, user });
         }
       }
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: "some error occured" });
+      return res.status(500).json({ error: "some error occured" });
     }
   }
 );
@@ -110,10 +110,10 @@ router.get("/fetchuser", fetchUser, async (req, res) => {
   try {
     let userId = await req.user.id;
     const user = await User.findById(userId).select("-password");
-    res.status(200).send(user);
+    return res.status(200).send(user);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "some error occured" });
+    return res.status(500).json({ error: "some error occured" });
   }
 });
 
@@ -163,11 +163,11 @@ router.patch(
       user.password = hash;
       await user.save();
 
-      res.status(200).send({
+      return res.status(200).send({
         message: "Password changed successfully",
       });
     } catch (error) {
-      res.status(500).send({
+      return res.status(500).send({
         error: true,
         message: error.message,
       });
