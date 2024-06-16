@@ -179,10 +179,10 @@ router.patch(
 router.patch(
   "/reset-password",
   [
-    body("currentPassword", "Current password is required").not().isEmpty(),
     body("newPassword", "New password length must be at least 8").isLength({
       min: 8,
     }),
+    body("email", "Email is required").exists(),
   ],
   async (req, res) => {
     try {
