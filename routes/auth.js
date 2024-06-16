@@ -178,7 +178,6 @@ router.patch(
 //End point: reset password
 router.patch(
   "/reset-password",
-
   [
     body("currentPassword", "Current password is required").not().isEmpty(),
     body("newPassword", "New password length must be at least 8").isLength({
@@ -187,7 +186,7 @@ router.patch(
   ],
   async (req, res) => {
     try {
-      const { currentPassword, newPassword, email } = req.body;
+      const { newPassword, email } = req.body;
 
       // Express validator errors logging
       const errors = validationResult(req);
@@ -200,12 +199,6 @@ router.patch(
 
       if (!user) {
         return res.status(404).json({ error: "User not found" });
-      }
-
-      // Verify the current password
-      const isMatch = await bcrypt.compare(currentPassword, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ error: "Current password is incorrect" });
       }
 
       // Hash the new password
