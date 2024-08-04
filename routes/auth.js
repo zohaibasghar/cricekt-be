@@ -10,47 +10,46 @@ const JWT_secret = "MianIsKING$";
 // this is a post end point ('/api/auth/createUser)
 router.post(
   "/createUser",
-  [
-    //this is express validator rules array
-    body("name", "Minimum length is 2").isLength({ min: 2 }),
-    body("email", "Must be an email").isEmail(),
-    body("password", "password length must be 8").isLength({ min: 8 }),
-  ],
   //this should be an async function and use await before saving the user
   async (req, res) => {
     try {
       const data = req.body;
-
+      if (data.password.length < 8) {
+        return res
+          .status(422)
+          .json({ error: "Password must contain 8 characters!" });
+      }
+      const emailRegex = `^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$\g`;
+      if (data.email.test(emailRegex)) {
+        return res.status(422).json({ error: "Please enter a valid email!" });
+      }
+      if (!data.name) {
+        return res.status(422).json({ error: "Enter your name!" });
+      }
       //bcrypt hashing method
       var salt = bcrypt.genSaltSync(10);
       var hash = bcrypt.hashSync(data.password, salt);
 
-      // express validator errors logging
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      } else {
-        //must await for the user to save in the database
-        const newUser = await new User({
-          name: data.name,
-          email: data.email,
-          password: hash,
-          mobile: data.mobile,
-        }).save();
+      //must await for the user to save in the database
+      const newUser = await new User({
+        name: data.name,
+        email: data.email,
+        password: hash,
+        mobile: data.mobile,
+      }).save();
 
-        //JWT used to generate a token
-        const jwtID = {
-          user: {
-            id: newUser.id,
-          },
-        };
-        const authToken = jwt.sign(jwtID, JWT_secret);
+      //JWT used to generate a token
+      const jwtID = {
+        user: {
+          id: newUser.id,
+        },
+      };
+      const authToken = jwt.sign(jwtID, JWT_secret);
 
-        res.status(201).send({
-          authToken: authToken,
-          user: newUser,
-        });
-      }
+      res.status(201).send({
+        authToken: authToken,
+        user: newUser,
+      });
     } catch (error) {
       res.send({
         code: 401,
