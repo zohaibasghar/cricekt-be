@@ -19,8 +19,8 @@ router.post(
           .status(422)
           .json({ error: "Password must contain 8 characters!" });
       }
-      const emailRegex = `^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$\g`;
-      if (data.email.test(emailRegex)) {
+      const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+      if (!emailRegex.test(data.email)) {
         return res.status(422).json({ error: "Please enter a valid email!" });
       }
       if (!data.name) {
