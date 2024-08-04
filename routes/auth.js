@@ -26,6 +26,10 @@ router.post(
       if (!data.name) {
         return res.status(422).json({ error: "Enter your name!" });
       }
+      const exist = User.findOne({ email: data.email });
+      if (exist) {
+        return res.status(409).json({ error: "Email already registered!" });
+      }
       //bcrypt hashing method
       var salt = bcrypt.genSaltSync(10);
       var hash = bcrypt.hashSync(data.password, salt);
@@ -99,7 +103,7 @@ router.post(
       }
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ error: "some error occured" });
+      return res.status(500).json({ error: "server error occured" });
     }
   }
 );
@@ -112,7 +116,7 @@ router.get("/fetchuser", fetchUser, async (req, res) => {
     return res.status(200).send(user);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: "some error occured" });
+    return res.status(500).json({ error: "server error occured" });
   }
 });
 
