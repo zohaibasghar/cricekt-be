@@ -26,7 +26,7 @@ router.post(
       if (!data.name) {
         return res.status(422).json({ error: "Enter your name!" });
       }
-      const exist = User.findOne({ email: data.email });
+      const exist = await User.findOne({ email: data.email });
       if (exist) {
         return res.status(409).json({ error: "Email already registered!" });
       }
