@@ -77,9 +77,9 @@ router.post(
     try {
       // express data validator only for email yet
       const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
+      // if (!errors.isEmpty()) {
+      //   return res.status(400).json({ errors: errors.array() });
+      // }
 
       //comparing email and password from login request
       const { email, password } = req.body;
