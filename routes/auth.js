@@ -83,6 +83,9 @@ router.post(
 
       //comparing email and password from login request
       const { email, password } = req.body;
+      if (!email) {
+        return res.status(404).json({ error: "Email is required!" });
+      }
       const user = await User.findOne({ email });
       if (!user) {
         return res.status(404).json({ error: "email is not correct" });
